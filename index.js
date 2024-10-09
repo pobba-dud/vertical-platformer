@@ -3,11 +3,12 @@ const c = canvas.getContext('2d')
 
 canvas.width = 1024
 canvas.height = 576
-
+let jumps =2
 const scaledCanvas = {
   width: canvas.width / 4,
   height: canvas.height / 4,
 }
+
 
 const floorCollisions2D = []
 for (let i = 0; i < floorCollisions.length; i += 36) {
@@ -52,7 +53,7 @@ platformCollisions2D.forEach((row, y) => {
   })
 })
 
-const gravity = 0.1
+const gravity = 0.15
 
 const player = new Player({
   position: {
@@ -62,7 +63,7 @@ const player = new Player({
   collisionBlocks,
   platformCollisionBlocks,
   imageSrc: './img/warrior/Idle.png',
-  frameRate: 8,
+  frameRate: 6,
   animations: {
     Idle: {
       imageSrc: './img/warrior/Idle.png',
@@ -140,35 +141,34 @@ function animate() {
 
   c.save()
   c.scale(4, 4)
+  
   c.translate(camera.position.x, camera.position.y)
   background.update()
-  // collisionBlocks.forEach((collisionBlock) => {
-  //   collisionBlock.update()
-  // })
-
-  // platformCollisionBlocks.forEach((block) => {
-  //   block.update()
-  // })
-
   player.checkForHorizontalCanvasCollision()
   player.update()
 
   player.velocity.x = 0
   if (keys.d.pressed) {
+    if (player.velocity.y === 0) {
+      jumps=2
+    }
     player.switchSprite('Run')
     player.velocity.x = 2
     player.lastDirection = 'right'
     player.shouldPanCameraToTheLeft({ canvas, camera })
   } else if (keys.a.pressed) {
+    if (player.velocity.y === 0) {
+      jumps=2
+    }
     player.switchSprite('RunLeft')
     player.velocity.x = -2
     player.lastDirection = 'left'
     player.shouldPanCameraToTheRight({ canvas, camera })
   } else if (player.velocity.y === 0) {
+    jumps=2
     if (player.lastDirection === 'right') player.switchSprite('Idle')
     else player.switchSprite('IdleLeft')
   }
-
   if (player.velocity.y < 0) {
     player.shouldPanCameraDown({ camera, canvas })
     if (player.lastDirection === 'right') player.switchSprite('Jump')
@@ -193,7 +193,10 @@ window.addEventListener('keydown', (event) => {
       keys.a.pressed = true
       break
     case 'w':
-      player.velocity.y = -4
+      if(jumps>0){
+        player.velocity.y = -4.5
+        jumps--
+      }
       break
   }
 })
