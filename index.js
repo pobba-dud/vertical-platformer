@@ -134,6 +134,7 @@ const camera = {
   },
 }
 
+
 function animate() {
   window.requestAnimationFrame(animate)
   c.fillStyle = 'white'
